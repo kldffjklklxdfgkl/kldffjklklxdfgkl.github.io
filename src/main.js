@@ -19,6 +19,9 @@ let mapping = {
   'leftward': 'q',
   'captureMode': 'c',
   'fishMode': 'f',
+  'fishLeft': 'a',
+  'fishRight': 'd',
+  'fishLens': 'v'
 }
 
 mousetrap.bind(mapping.captureMode, function () {
@@ -39,7 +42,7 @@ mousetrap.bind(mapping.fishMode, function () {
   }
 })
 
-mousetrap.bind('v', function () {
+mousetrap.bind(mapping.fishLens, function () {
   // Camera.fishLens = !Camera.fishLens;
   // console.log('BIIIII', Camera)
   Camera.fishLens = !Camera.fishLens
@@ -73,18 +76,26 @@ mousetrap.bind(mapping.forward, function () {
   }
 })
 
-mousetrap.bind('a', function () {
+mousetrap.bind(mapping.fishLeft, function () {
   if (Camera.fishView) {
     fishLeft()
   }
 })
 
-mousetrap.bind('d', function () {
+mousetrap.bind(mapping.fishRight, function () {
   if (Camera.fishView) {
     fishRight()
   }
 })
 
+/**
+ * The function updates the camera's target position based on the mouse's position on the canvas.
+ * @param e - The parameter "e" is an event object that is passed to the function when it is called. It
+ * is typically a mouse event, such as a click or a movement of the mouse.
+ * @returns If `Camera.mouseUpdate` is false or `Camera.fishView` is true, the function returns nothing
+ * (undefined). Otherwise, it updates the `Camera.lookx`, `Camera.looky`, and `Camera.lookz` variables
+ * based on the mouse position and returns nothing.
+ */
 function updateCameraTarget(e) {
   if (!Camera.mouseUpdate || Camera.fishView) return;
   var rect = window.canvas.getBoundingClientRect();
@@ -125,26 +136,50 @@ var Camera = {
   lookx: 0,
   looky: 0,
   lookz: 0,
-  mouseUpdate: true,
+  mouseUpdate: false,
   fishLens: false,
   fishView: false,
   mouseX: 0,
   mouseY: 0,
 }
 
+/**
+ * The function converts an angle from degrees to radians.
+ * @param angle - The angle parameter is a number representing an angle in degrees that we want to
+ * convert to radians.
+ * @returns the value of the input angle converted from degrees to radians.
+ */
 function toRadians(angle) {
   return angle * (Math.PI / 180);
 }
+
+// function help() {
+//   Object.keys(mapping).forEach(function(key) {
+//     console.log(key + ': ' + monObjet[key]);
+//   });
+// }
 
 // window.$ = require('jquery')
 window.Matrices = {}
 window.models = {}
 
+/**
+ * This function resizes a canvas element to be a square with dimensions equal to the minimum of the
+ * document's height and width.
+ */
 function resizeCanvas() {
   canvas.height = canvas.width = Math.min($(document).height(), $(document).width())
 }
 
+/**
+ * The function initializes the aquarium simulation by setting up event listeners, creating models, and
+ * starting the animation loop.
+ * @returns There is no return statement in this code, so nothing is being returned. The function is
+ * simply initializing various elements and setting up event listeners.
+ */
 function Initialize() {
+  // help()
+  console.log(mapping)
   document.getElementById('backaudio').play()
   window.canvas = document.getElementById("canvas");
   resizeCanvas();
@@ -212,6 +247,13 @@ window.Initialize = Initialize
 
 window.Camera = Camera
 
+/**
+ * The function "animate" updates various elements in a virtual fish tank simulation.
+ * @returns If `lastTime` is equal to 0, the function will return and nothing will be returned
+ * explicitly. If `lastTime` is not equal to 0, nothing will be returned explicitly and the function
+ * will simply execute the code inside the if statement and update the `lastTime` variable. Therefore,
+ * nothing is being explicitly returned in this function.
+ */
 var lastTime = 0;
 function animate() {
   var timeNow = new Date().getTime();
@@ -227,6 +269,9 @@ function animate() {
   lastTime = timeNow;
 }
 
+/**
+ * The function updates the camera view to follow a fish's movement.
+ */
 function updateFishView() {
   if (Camera.fishView) {
     var eyetarget = cycleFish()
@@ -250,6 +295,9 @@ function updateBubbles() {
   })
 }
 
+/**
+ * The function updates the position and size of the food model in the aquarium simulation.
+ */
 function updateFood() {
   if (foodData.active) {
     if (fishMovingTowardsFood) {
@@ -275,6 +323,9 @@ function updateFood() {
   }
 }
 
+/**
+ * The tickWeed function animates the rotation of a model's anglex property between -10 and 10.
+ */
 function tickWeed() {
   var { weed } = models;
 
@@ -293,6 +344,10 @@ function tickWeed() {
   }
 }
 
+/**
+ * This function draws a 3D scene with various models and applies transformations to them using
+ * matrices.
+ */
 function drawScene() {
   var { aquarium, sand, metal, ship } = models;
   var { weed, wall, light, rock, food, table } = models;
@@ -383,6 +438,9 @@ function drawScene() {
   gl.disable(gl.BLEND);
 }
 
+/**
+ * The function updates the camera and sets the lighting and view matrices for a WebGL program.
+ */
 function updateCamera() {
   var up = [0, 1, 0];
   var eye = [Camera.x, Camera.y, Camera.z]
@@ -410,6 +468,13 @@ function updateCamera() {
   gl.uniform3f(gl.getUniformLocation(program, "light.specular"), 1.0, 1.0, 1.0);
 }
 
+/**
+ * The function continuously requests animation frames and executes the drawScene and animate functions
+ * if a program exists.
+ * @returns If the condition `if (!window.program)` is true, then nothing is being returned. If the
+ * condition is false, then nothing is being explicitly returned as the function `tick()` is being
+ * called recursively using `window.requestAnimationFrame()`.
+ */
 function tick() {
   window.requestAnimationFrame(tick);
   if (!window.program) return;

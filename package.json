@@ -4,11 +4,11 @@
   "description": "",
   "main": ".eslintrc.js",
   "scripts": {
-    "start": "NODE_ENV=development watchify -d src/main.js -o build.js -t [ babelify --presets [ es2015 ] ]",
+    "start": "watchify -d src/main.js -o build.js -t [ babelify --presets [ es2015 ] ]",
     "build": "browserify src/main.js -o build.js -t [ babelify --presets [ es2015 ] ] -g uglifyify",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error : Tester c'est douter !\" && exit 1"
   },
-  "author": "Megh Parikh <meghprkh@gmail.com>",
+  "author": "kldffjklklxdfgkl<kldffjklklxdfgkl@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "babel-preset-es2015": "^6.22.0",
